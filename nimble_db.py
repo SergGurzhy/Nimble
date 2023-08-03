@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+from model import Person
+
 
 class NimbleDB:
 
@@ -18,11 +20,11 @@ class NimbleDB:
         pass
 
     @abstractmethod
-    def insert_value(self, values: tuple[str, str, str]) -> None:
+    def insert_value(self, values: Person) -> None:
         pass
 
     @abstractmethod
-    def update_value(self, value: tuple[str, str], key: str) -> None:
+    def update_value(self, value: Person) -> None:
         pass
 
     @abstractmethod
