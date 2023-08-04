@@ -28,6 +28,11 @@ class NimbleDB:
         pass
 
     @abstractmethod
-    def update_db(self) -> None:
+    def update_db(self, new_value: dict) -> None:
+        """Updates the database with new received data."""
+        pass
+
+    @abstractmethod
+    def fulltext_search(self, query: str) -> list[dict]:
         pass
 

@@ -7,6 +7,7 @@ from nimble_db import NimbleDB
 
 
 class NimbleDbSQL(NimbleDB):
+
     def __init__(self, duplication: bool = False):
         self.duplication = duplication
         self.connection = psycopg2.connect(
@@ -76,6 +77,9 @@ class NimbleDbSQL(NimbleDB):
                         continue
                 else:
                     self.insert_value(values=new_person)
+
+    def fulltext_search(self, query: str) -> list[dict]:
+        pass
 
     def _email_in_db(self, email: str) -> Person | None:
         """ Checking availability by field: Email """
