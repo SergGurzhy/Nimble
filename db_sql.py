@@ -1,4 +1,4 @@
-import json
+
 import psycopg2
 import csv
 from config import host, user, password, db_name
@@ -17,7 +17,6 @@ class NimbleDbSQL(NimbleDB):
             database=db_name
         )
         self.connection.autocommit = True
-        print("ЕСТЬ ПОДКЛЮЧЕНИЕ К БД")
 
     def create_db(self) -> None:
         with self.connection.cursor() as cursor:

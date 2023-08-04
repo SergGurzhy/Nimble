@@ -13,17 +13,13 @@ def update_db_daily():
     }
 
     try:
-        # Выполняем GET-запрос
         response = requests.get(url, headers=headers)
         response.raise_for_status()
 
-        # Получаем JSON с новыми данными
         new_data = response.json()
 
-        # Выполняем обновление базы данных
         db.update_db(new_data)
 
-        # Выводим время обновления
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
         print(f"База данных успешно обновлена. Время обновления: {current_time}")
 
