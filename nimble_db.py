@@ -16,6 +16,10 @@ class NimbleDB:
         pass
 
     @abstractmethod
+    def delete_table(self, table_name: str) -> None:
+        pass
+
+    @abstractmethod
     def update_db_from_csv_file(self, file_name: str) -> None:
         pass
 
@@ -28,11 +32,11 @@ class NimbleDB:
         pass
 
     @abstractmethod
-    def update_db(self, new_value: dict) -> None:
+    def update_db(self, new_value: dict) -> None: # , new_value: dict
         """Updates the database with new received data."""
         pass
 
     @abstractmethod
-    def fulltext_search(self, query: str) -> list[dict]:
+    def fulltext_search(self, query: str) -> list[Person]:
         pass
 

@@ -17,6 +17,7 @@ class NimbleDbSQL(NimbleDB):
             database=db_name
         )
         self.connection.autocommit = True
+        print("ЕСТЬ ПОДКЛЮЧЕНИЕ К БД")
 
     def create_db(self) -> None:
         with self.connection.cursor() as cursor:
@@ -27,8 +28,19 @@ class NimbleDbSQL(NimbleDB):
                     last_name varchar(50),
                     email varchar(50));"""
             )
+            # Создаем индекс для полнотекстового поиска, если его нет
+            cursor.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_users_fulltext_search 
+                ON users USING gin(to_tsvector('simple', first_name || ' ' || last_name || ' ' || email));
+                """
+            )
 
             print("[INFO] Table created successfully")
+
+    def delete_table(self, table_name: str) -> None:
+        with self.connection.cursor() as cursor:
+            cursor.execute("""DROP TABLE IF EXISTS users;""")
 
     def update_db_from_csv_file(self, file_name: str) -> None:
         with open(file_name, 'r') as csv_file:
@@ -54,11 +66,11 @@ class NimbleDbSQL(NimbleDB):
             data_to_insert = values.get_fields()
             cursor.execute(update_query, data_to_insert)
 
-    def update_db(self) -> None:
-        with open("response.json") as file:
-            data_file = json.load(file)
+    def update_db(self, new_value) -> None:
+        # with open("response.json") as file:
+        #     data_file = json.load(file)
 
-        for item in data_file['resources']:
+        for item in new_value['resources']:
             if item['record_type'] == 'person':
                 new_person = Person(
                     email=self._get_value(container=item['fields'], param='email'),
@@ -78,8 +90,26 @@ class NimbleDbSQL(NimbleDB):
                 else:
                     self.insert_value(values=new_person)
 
-    def fulltext_search(self, query: str) -> list[dict]:
-        pass
+    def fulltext_search(self, query: str) -> list[Person]:
+        """
+        Полнотекстовый поиск по всем полям в таблице users.
+        Возвращает список объектов Person, удовлетворяющих условиям поиска.
+        """
+        print('ЗАШЛИ В МЕТОД SEARCH')
+        with self.connection.cursor() as cursor:
+            search_query = """
+                SELECT COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, COALESCE(email, '') as email
+                FROM users
+                WHERE to_tsvector('simple', COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '')) @@ to_tsquery(%s)
+            """
+
+            cursor.execute(search_query, (query,))
+            results = cursor.fetchall()
+            print(f'RESULT: {results}')
+            # Преобразование результатов в список объектов Person
+            persons = [Person(*result) for result in results]
+
+        return persons
 
     def _email_in_db(self, email: str) -> Person | None:
         """ Checking availability by field: Email """
@@ -111,4 +141,6 @@ if __name__ == '__main__':
     db = NimbleDbSQL(duplication=True)
     db.create_db()
     db.update_db_from_csv_file(file_name='Nimble Contacts.csv')
-    db.update_db()
+#     db.update_db()
+
+    # db.delete_table(table_name='users')
