@@ -1,7 +1,7 @@
 
 import psycopg2
 import csv
-from config import host, user, password, db_name
+from config import host, user, password, db_name, port
 from model import Person
 from nimble_db import NimbleDB
 
@@ -14,7 +14,8 @@ class NimbleDbSQL(NimbleDB):
             host=host,
             user=user,
             password=password,
-            database=db_name
+            database=db_name,
+            port=port
         )
         self.connection.autocommit = True
 
@@ -110,6 +111,15 @@ class NimbleDbSQL(NimbleDB):
 
         return persons
 
+    def get_all_records(self) -> list[Person]:
+        with self.connection.cursor() as cursor:
+            select_query = "SELECT first_name, last_name, email FROM users"
+            cursor.execute(select_query)
+            results = cursor.fetchall()
+
+        persons = [Person(first_name=row[0], last_name=row[1], email=row[2]) for row in results]
+        return persons
+
     def _email_in_db(self, email: str) -> Person | None:
         """ Checking availability by field: Email """
         with self.connection.cursor() as cursor:
@@ -140,6 +150,6 @@ if __name__ == '__main__':
     db = NimbleDbSQL(duplication=True)
     db.create_db()
     db.update_db_from_csv_file(file_name='Nimble Contacts.csv')
-#     db.update_db()
+    # db.update_db()
 
     # db.delete_table(table_name='users')

@@ -1,10 +1,8 @@
-
 from flask import Flask, request, jsonify
 import requests
 from datetime import datetime
 from config import token, url
 from db_sql import NimbleDbSQL
-
 
 app = Flask(__name__)
 
@@ -22,9 +20,20 @@ def search_contacts():
         return jsonify({'error': 'Missing query parameter'}), 400
 
 
+@app.route('/api', methods=['GET'])
+def get_all_records():
+    # Получаем все записи из базы данных
+    records = db.get_all_records()
+
+    # Преобразовываем список объектов Person в список словарей
+    data = [{'first_name': record.first_name, 'last_name': record.last_name, 'email': record.email} for record in
+            records]
+
+    return jsonify(data)
+
+
 # Метод для выполнения GET-запроса и обновления базы данных раз в сутки
 def update_db_daily():
-
     headers = {
         'Authorization': token
     }

@@ -1,3 +1,5 @@
+import pprint
+
 import requests
 
 
@@ -17,10 +19,10 @@ class NimbleDbClient:
             print(f"Error: {response.status_code}")
             return []
 
-    def fulltext_search_post(self, query: str) -> list[dict]:
-        url = f"{self.base_url}/search"
-        data = {'query': query}
-        response = requests.post(url, json=data)
+    def get_all(self) -> list[dict]:
+        url = f"{self.base_url}"
+
+        response = requests.get(url)
 
         if response.status_code == 200:
             data = response.json()
@@ -35,10 +37,13 @@ if __name__ == '__main__':
     base_url = 'http://127.0.0.1:5000/api'
     client = NimbleDbClient(base_url)
 
+    results_get = client.get_all()
+    pprint.pprint(results_get)
+
     # Пример полнотекстового поиска с GET запросом
     query = 'Kiersten'
-    results_get = client.fulltext_search_get(query)
-    print(results_get)
+    # results_get = client.fulltext_search_get(query)
+    # print(results_get)
 
     # # Пример полнотекстового поиска с POST запросом
     # results_post = client.fulltext_search_post(query)
