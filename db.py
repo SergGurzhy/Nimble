@@ -1,5 +1,5 @@
 from model import Person
-from nimble_db import NimbleDB
+from db_factory.nimble_db import NimbleDB
 
 
 class DB:

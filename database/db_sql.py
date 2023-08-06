@@ -1,9 +1,8 @@
-
 import psycopg2
 import csv
 from config import host, user, password, db_name
 from model import Person
-from nimble_db import NimbleDB
+from db_factory.nimble_db import NimbleDB
 
 
 class NimbleDbSQL(NimbleDB):
@@ -149,7 +148,7 @@ class NimbleDbSQL(NimbleDB):
 if __name__ == '__main__':
     db = NimbleDbSQL(duplication=True)
     db.create_db()
-    db.update_db_from_csv_file(file_name='Nimble Contacts.csv')
+    db.update_db_from_csv_file(file_name='../Nimble Contacts.csv')
     # db.update_db()
 
     # db.delete_table(table_name='users')

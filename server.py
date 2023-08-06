@@ -2,12 +2,11 @@ from flask import Flask, request, jsonify
 import requests
 from datetime import datetime
 from config import token, url
-from db import DB
-from db_sql import NimbleDbSQL
+from db_factory import get_database
 
 app = Flask(__name__)
 
-db = DB(database=NimbleDbSQL())
+db = get_database()
 
 
 @app.route('/api/search', methods=['GET'])

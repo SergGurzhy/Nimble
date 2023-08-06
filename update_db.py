@@ -2,10 +2,9 @@ import os
 import requests
 from requests import RequestException
 from datetime import datetime
-from db import DB
-from db_sql import NimbleDbSQL
+from db_factory import get_database
 
-db = DB(database=NimbleDbSQL())
+db = get_database()
 
 
 def update_db_daily():
