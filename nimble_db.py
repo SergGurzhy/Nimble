@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 from model import Person
 
 
-class NimbleDB:
+class NimbleDB(ABC):
 
     @abstractmethod
     def create_db(self) -> None:
@@ -32,7 +32,7 @@ class NimbleDB:
         pass
 
     @abstractmethod
-    def update_db(self, new_value: dict) -> None: # , new_value: dict
+    def update_db(self, new_value: dict) -> None:  # , new_value: dict
         """Updates the database with new received data."""
         pass
 
@@ -40,3 +40,6 @@ class NimbleDB:
     def fulltext_search(self, query: str) -> list[Person]:
         pass
 
+    @abstractmethod
+    def get_all_records(self) -> list[Person]:
+        pass

@@ -1,7 +1,7 @@
 
 import psycopg2
 import csv
-from config import host, user, password, db_name, port
+from config import host, user, password, db_name
 from model import Person
 from nimble_db import NimbleDB
 
@@ -15,12 +15,12 @@ class NimbleDbSQL(NimbleDB):
             user=user,
             password=password,
             database=db_name,
-            port=port
         )
         self.connection.autocommit = True
 
     def create_db(self) -> None:
         with self.connection.cursor() as cursor:
+            # Create a table in our database if it doesn't exist
             cursor.execute(
                 """CREATE TABLE  IF NOT EXISTS users(
                     id serial PRIMARY KEY,
@@ -28,7 +28,7 @@ class NimbleDbSQL(NimbleDB):
                     last_name varchar(50),
                     email varchar(50));"""
             )
-            # Создаем индекс для полнотекстового поиска, если его нет
+            # Create an index for full-text search if it doesn't exist
             cursor.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_users_fulltext_search 

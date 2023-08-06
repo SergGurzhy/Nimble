@@ -1,12 +1,17 @@
+import os
 import requests
-from config import token, url
-from db_sql import NimbleDbSQL
+from requests import RequestException
 from datetime import datetime
+
+from db_sql import NimbleDbSQL
 
 db = NimbleDbSQL()
 
 
 def update_db_daily():
+
+    url = os.getenv('API_URL')
+    token = os.getenv('TOKEN')
 
     headers = {
         'Authorization': token
@@ -21,10 +26,10 @@ def update_db_daily():
         db.update_db(new_data)
 
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
-        print(f"База данных успешно обновлена. Время обновления: {current_time}")
+        print(f"The database has been successfully updated. Update time: {current_time}")
 
-    except Exception as e:
-        print(f"Произошла ошибка при обновлении базы данных: {e}")
+    except RequestException as e:
+        print(f"An error occurred while updating the database: {e}")
 
 
 if __name__ == '__main__':
