@@ -1,5 +1,4 @@
 from abc import abstractmethod, ABC
-
 from model import Person
 
 
@@ -21,14 +20,6 @@ class NimbleDB(ABC):
 
     @abstractmethod
     def update_db_from_csv_file(self, file_name: str) -> None:
-        pass
-
-    @abstractmethod
-    def insert_value(self, values: Person) -> None:
-        pass
-
-    @abstractmethod
-    def update_value(self, value: Person) -> None:
         pass
 
     @abstractmethod
