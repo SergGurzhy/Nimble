@@ -1,3 +1,5 @@
+import json
+from dataclasses import asdict
 import psycopg2
 import csv
 from config import host, user, password, db_name
@@ -66,8 +68,6 @@ class NimbleDbSQL(NimbleDB):
             cursor.execute(update_query, data_to_insert)
 
     def update_db(self, new_values: dict) -> None:
-        # with open("response.json") as file:
-        #     data_file = json.load(file)
 
         for item in new_values['resources']:
             if item['record_type'] == 'person':
@@ -89,12 +89,11 @@ class NimbleDbSQL(NimbleDB):
                 else:
                     self.insert_value(values=new_person)
 
-    def fulltext_search(self, query: str) -> list[Person]:
+    def fulltext_search(self, query: str) -> str:
         """
         Полнотекстовый поиск по всем полям в таблице users.
         Возвращает список объектов Person, удовлетворяющих условиям поиска.
         """
-        print('ЗАШЛИ В МЕТОД SEARCH')
         with self.connection.cursor() as cursor:
             search_query = """
                 SELECT COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, COALESCE(email, '') as email
@@ -105,19 +104,19 @@ class NimbleDbSQL(NimbleDB):
             cursor.execute(search_query, (query,))
             results = cursor.fetchall()
             print(f'RESULT: {results}')
-            # Преобразование результатов в список объектов Person
+            # Converting the results to a list of Person objects
             persons = [Person(*result) for result in results]
+        # Converting the results to JSON
+        return json.dumps(persons, default=lambda x: asdict(x))
 
-        return persons
-
-    def get_all_records(self) -> list[Person]:
+    def get_all_records(self) -> str:
         with self.connection.cursor() as cursor:
             select_query = "SELECT first_name, last_name, email FROM users"
             cursor.execute(select_query)
             results = cursor.fetchall()
 
         persons = [Person(first_name=row[0], last_name=row[1], email=row[2]) for row in results]
-        return persons
+        return json.dumps(persons, default=lambda x: asdict(x))
 
     def _email_in_db(self, email: str) -> Person | None:
         """ Checking availability by field: Email """

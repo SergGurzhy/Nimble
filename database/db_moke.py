@@ -16,7 +16,7 @@ class MokeDB(NimbleDB):
         setattr(self, "storage", [])
 
     def delete_table(self, table_name: str) -> None:
-        if hasattr(self, 'storage'):
+        if hasattr(self, table_name):
             del self.storage
 
     def update_db_from_csv_file(self, file_name: str) -> None:
@@ -42,8 +42,8 @@ class MokeDB(NimbleDB):
                 record['last_name'] = values.last_name
                 break
 
-    def update_db(self, new_values: dict) -> None:
-        for item in new_values['resources']:
+    def update_db(self, new_value: dict) -> None:
+        for item in new_value['resources']:
             if item['record_type'] == 'person':
                 new_person = Person(
                     email=self._get_value(container=item['fields'], param='email'),
@@ -72,7 +72,7 @@ class MokeDB(NimbleDB):
 
     def _email_in_db(self, email: str) -> Person | None:
         for record in self.storage:
-            if email in [item for item in record.values]:
+            if email in [item for item in record.values()]:
                 return Person(**record)
         return None
 
