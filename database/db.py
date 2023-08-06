@@ -7,7 +7,7 @@ class DB:
         self.database = database
 
     def create_db(self) -> None:
-        self.database.create_db()
+        self.database.create_table()
 
     def delete_table(self, table_name: str) -> None:
         self.database.delete_table(table_name=table_name)

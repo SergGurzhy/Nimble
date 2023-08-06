@@ -41,7 +41,7 @@ if __name__ == '__main__':
     # pprint.pprint(results_get)
 
     # Full text search example with GET request
-    query = 'Ferrara'
+    query = 'Mcgee'
     results_get = client.fulltext_search_get(query)
     pprint.pprint(results_get)
 

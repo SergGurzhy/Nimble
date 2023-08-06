@@ -17,7 +17,7 @@ class NimbleDbSQL(NimbleDB):
         )
         self.connection.autocommit = True
 
-    def create_db(self) -> None:
+    def create_table(self) -> None:
         with self.connection.cursor() as cursor:
             # Create a table in our database if it doesn't exist
             cursor.execute(
@@ -65,11 +65,11 @@ class NimbleDbSQL(NimbleDB):
             data_to_insert = values.get_fields()
             cursor.execute(update_query, data_to_insert)
 
-    def update_db(self, new_value) -> None:
+    def update_db(self, new_values: dict) -> None:
         # with open("response.json") as file:
         #     data_file = json.load(file)
 
-        for item in new_value['resources']:
+        for item in new_values['resources']:
             if item['record_type'] == 'person':
                 new_person = Person(
                     email=self._get_value(container=item['fields'], param='email'),
@@ -145,10 +145,10 @@ class NimbleDbSQL(NimbleDB):
         return new_person == existing_person
 
 
-if __name__ == '__main__':
-    db = NimbleDbSQL(duplication=True)
-    db.create_db()
-    db.update_db_from_csv_file(file_name='../Nimble Contacts.csv')
+# if __name__ == '__main__':
+#     db = NimbleDbSQL(duplication=True)
+#     db.create_db()
+#     db.update_db_from_csv_file(file_name='../Nimble Contacts.csv')
     # db.update_db()
 
     # db.delete_table(table_name='users')

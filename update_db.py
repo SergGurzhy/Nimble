@@ -1,4 +1,5 @@
 import os
+from json import JSONDecodeError
 import requests
 from requests import RequestException
 from datetime import datetime
@@ -28,7 +29,9 @@ def update_db_daily():
         print(f"The database has been successfully updated. Update time: {current_time}")
 
     except RequestException as e:
-        print(f"An error occurred while updating the database: {e}")
+        print(f"An error occurred connecting to the server: {e}")
+    except JSONDecodeError as e:
+        print(f"The server returned an invalid response: {e}")
 
 
 if __name__ == '__main__':

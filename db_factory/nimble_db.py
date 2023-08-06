@@ -5,7 +5,7 @@ from model import Person
 class NimbleDB(ABC):
 
     @abstractmethod
-    def create_db(self) -> None:
+    def create_table(self) -> None:
         """
         Create DB with fields:
                 email: varchar(50) PRIMARY KEY
