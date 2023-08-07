@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+
 from model import Person
 
 
@@ -24,7 +25,7 @@ class NimbleDB(ABC):
         pass
 
     @abstractmethod
-    def update_db(self, new_value: dict) -> None:
+    def update_db(self, new_values: dict) -> None:
         """Updates the database with new received data."""
         pass
 

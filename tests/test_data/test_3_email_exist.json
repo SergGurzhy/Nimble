@@ -281,7 +281,7 @@
           {
             "label": "first name",
             "modifier": "",
-            "value": "Oleg",
+            "value": "Serg",
             "is_primary": false
           }
         ],
@@ -289,7 +289,7 @@
           {
             "label": "last name",
             "modifier": "",
-            "value": "Mishyn",
+            "value": "Ivanov",
             "is_primary": false
           }
         ],

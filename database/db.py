@@ -19,8 +19,8 @@ class DB:
         """Updates the database with new received data."""
         self.database.update_db(new_value=new_value)
 
-    def fulltext_search(self, query: str) -> list[Person]:
+    def fulltext_search(self, query: str) -> str:
         return self.database.fulltext_search(query=query)
 
-    def get_all_records(self) -> list[Person]:
+    def get_all_records(self) -> str:
         return self.database.get_all_records()

@@ -55,44 +55,58 @@ class NimbleDbSQL(NimbleDB):
                     data = (first_name, last_name, email)
                     cursor.execute(query, data)
 
-    def insert_value(self, values: Person) -> None:
+    def insert_value(self, value: Person) -> None:
         with self.connection.cursor() as cursor:
             query = """INSERT INTO users (first_name, last_name, email) VALUES (%s, %s, %s);"""
-            data_to_insert = values.get_fields()
+            data_to_insert = value.get_fields()
             cursor.execute(query, data_to_insert)
 
-    def update_value(self, values: Person) -> None:
+    def update_value(self, exist_value: Person, new_value: Person) -> None:
         with self.connection.cursor() as cursor:
-            update_query = f"UPDATE users SET first_name = %s, last_name = %s WHERE email = %s"
-            data_to_insert = values.get_fields()
+            update_query = f"UPDATE users SET first_name = %s, last_name = %s, email = %s WHERE id = %s"
+            data_to_insert = (new_value.first_name, new_value.last_name, new_value.email, exist_value.person_id)
             cursor.execute(update_query, data_to_insert)
 
     def update_db(self, new_values: dict) -> None:
-
         for item in new_values['resources']:
             if item['record_type'] == 'person':
                 new_person = Person(
                     email=self._get_value(container=item['fields'], param='email'),
                     first_name=self._get_value(container=item['fields'], param='first name'),
                     last_name=self._get_value(container=item['fields'], param='last name'),
+                    person_id=None
                 )
                 if self.duplication:
                     self.insert_value(new_person)
                     continue
 
-                existing_person = self._email_in_db(email=new_person.email)
-                if existing_person is not None:
-                    if self._changed_first_and_last_name(new_person=new_person, existing_person=existing_person):
-                        self.update_value(values=new_person)
+                if new_person.email is None:
+                    existing_person = self.get_record(full_name=(new_person.first_name, new_person.last_name))
+
+                    if existing_person is not None:
+                        if existing_person.email is None:
+                            continue
+                        else:
+                            self.update_value(exist_value=existing_person, new_value=new_person)
                     else:
-                        continue
+                        self.insert_value(value=new_person)
+
                 else:
-                    self.insert_value(values=new_person)
+                    existing_person_email = self.get_record(email=new_person.email)
+                    if existing_person_email is not None:
+                        continue
+                    else:
+                        existing_person_full_name = self.get_record(
+                            full_name=(new_person.first_name, new_person.last_name))
+                        if existing_person_full_name is not None:
+                            self.update_value(exist_value=existing_person_full_name, new_value=new_person)
+                        else:
+                            self.insert_value(value=new_person)
 
     def fulltext_search(self, query: str) -> str:
         """
-        Полнотекстовый поиск по всем полям в таблице users.
-        Возвращает список объектов Person, удовлетворяющих условиям поиска.
+        :param query:
+        :return: JSON
         """
         with self.connection.cursor() as cursor:
             search_query = """
@@ -103,7 +117,7 @@ class NimbleDbSQL(NimbleDB):
 
             cursor.execute(search_query, (query,))
             results = cursor.fetchall()
-            print(f'RESULT: {results}')
+
             # Converting the results to a list of Person objects
             persons = [Person(*result) for result in results]
         # Converting the results to JSON
@@ -115,17 +129,33 @@ class NimbleDbSQL(NimbleDB):
             cursor.execute(select_query)
             results = cursor.fetchall()
 
-        persons = [Person(first_name=row[0], last_name=row[1], email=row[2]) for row in results]
+        persons = [Person(person_id=row[0], first_name=row[1], last_name=row[2], email=row[3]) for row in results]
         return json.dumps(persons, default=lambda x: asdict(x))
 
-    def _email_in_db(self, email: str) -> Person | None:
-        """ Checking availability by field: Email """
+    def get_record(self, id: str = '', email: str = '', full_name: tuple[str, str] | None = None) -> Person | None:
         with self.connection.cursor() as cursor:
-            select_query = f"SELECT first_name, last_name, email FROM users WHERE email = %s"
-            cursor.execute(select_query, (email,))
-            result = cursor.fetchone()
-            print(result)
-            return Person(*result) if result else None
+            if id:
+                select_query = f"SELECT id, first_name, last_name, email FROM users WHERE id = %s"
+                cursor.execute(select_query, (id,))
+                result = cursor.fetchone()
+                return Person(*result) if result else None
+
+            if email:
+                select_query = f"SELECT id, first_name, last_name, email FROM users WHERE email = %s"
+                cursor.execute(select_query, (email,))
+                result = cursor.fetchone()
+                return Person(*result) if result else None
+
+            if full_name is not None:
+                first_name, last_name = full_name
+                query = """
+                           SELECT * FROM users
+                           WHERE first_name = %s AND last_name = %s;
+                        """
+                data_to_insert = (first_name, last_name,)
+                cursor.execute(query, data_to_insert)
+                result = cursor.fetchone()
+                return Person(*result) if result else None
 
     @staticmethod
     def _get_value(container: dict, param: str):
@@ -135,19 +165,10 @@ class NimbleDbSQL(NimbleDB):
             return value.strip() if value else None
         return None
 
-    @staticmethod
-    def _changed_first_and_last_name(new_person: Person, existing_person: Person) -> bool:
-        """
-        Checks if fields first_name or last_name have been changed.
-        Return:  True if changed
-        """
-        return new_person == existing_person
-
-
 # if __name__ == '__main__':
 #     db = NimbleDbSQL(duplication=True)
 #     db.create_db()
 #     db.update_db_from_csv_file(file_name='../Nimble Contacts.csv')
-    # db.update_db()
+# db.update_db()
 
-    # db.delete_table(table_name='users')
+# db.delete_table(table_name='users')

@@ -1,6 +1,6 @@
 import os
 
-from database.db_moke import MokeDB
+from database.db_mock import MockDB
 from database.db_sql import NimbleDbSQL
 from db_factory.nimble_db import NimbleDB
 
@@ -10,7 +10,7 @@ def get_database() -> NimbleDB:
     match env_kind:
         case "sql":
             return NimbleDbSQL()
-        case "moke":
-            return MokeDB()
+        case "mock":
+            return MockDB()
 
     raise RuntimeError(f"Unknown Database: {env_kind}")

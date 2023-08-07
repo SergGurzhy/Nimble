@@ -37,11 +37,8 @@ if __name__ == '__main__':
 
     client = NimbleDbClient(base_url)
 
-    # results_get = client.get_all()
-    # pprint.pprint(results_get)
-
     # Full text search example with GET request
-    query = 'Gray'
+    query = 'Oleg'
     results_get = client.fulltext_search_get(query)
     pprint.pprint(results_get)
 
