@@ -1,21 +1,33 @@
 import json
+import os
 from dataclasses import asdict
 import psycopg2
 import csv
-from config import host, user, password, db_name
 from model import Person
 from db_factory.nimble_db import NimbleDB
 
 
+def get_environment_variables() -> dict:
+    if os.getenv('DATABASE') != 'MOCK':
+        return {
+            'host': os.getenv('DB_HOST').lower(),
+            'user': os.getenv('DB_USER').lower(),
+            'password': os.getenv('DB_PASSWORD').lower(),
+            'db_name': os.getenv('DB_NAME').lower(),
+        }
+
+
 class NimbleDbSQL(NimbleDB):
+
+    ENV = get_environment_variables()
 
     def __init__(self, duplication: bool = False):
         self.duplication = duplication
         self.connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name,
+            host=self.ENV['host'],
+            user=self.ENV['user'],
+            password=self.ENV['password'],
+            database=self.ENV['db_name'],
         )
         self.connection.autocommit = True
 

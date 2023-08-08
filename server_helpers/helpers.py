@@ -6,16 +6,15 @@ from datetime import datetime
 from db_factory import get_database
 
 db = get_database()
+url = os.getenv('API_URL')
+token = os.getenv('TOKEN')
+
+headers = {
+    'Authorization': token
+}
 
 
 def update_db_daily():
-
-    url = os.getenv('API_URL')
-    token = os.getenv('TOKEN')
-
-    headers = {
-        'Authorization': token
-    }
 
     try:
         response = requests.get(url, headers=headers)

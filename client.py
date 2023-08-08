@@ -32,13 +32,13 @@ class NimbleDbClient:
 
 
 if __name__ == '__main__':
-    # Пример использования клиента
+
     base_url = 'http://127.0.0.1:5000/api'
 
     client = NimbleDbClient(base_url)
 
     # Full text search example with GET request
-    query = 'Oleg'
+    query = 'Mishyn'
     results_get = client.fulltext_search_get(query)
     pprint.pprint(results_get)
 
