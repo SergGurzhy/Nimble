@@ -8,8 +8,12 @@ from dotenv import load_dotenv
 from server_helpers.models.db_env import DBEnv
 from server_helpers.models.person import Person
 from db_factory.nimble_db import NimbleDB
+from psycopg2.extensions import AsIs
 
 load_dotenv(sys.path[0] + '.env')
+
+TABLE_NAME = 'users'
+START_DATA = 'Nimble Contacts.csv'
 
 
 def get_environment_variables() -> DBEnv:
@@ -33,18 +37,42 @@ class NimbleDbSQL(NimbleDB):
             database=self.env.db_name,
         )
         self.connection.autocommit = True
-        self.create_table()
+        self.initialization_db(table_name=TABLE_NAME)
 
-    def create_table(self) -> None:
+    def _table_exists(self, table_name: str) -> bool:
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s);", (table_name,))
+        return cursor.fetchone()[0]
+
+    def _count_entries(self, table_name: str) -> int:
+        cursor = self.connection.cursor()
+        cursor.execute(f"SELECT COUNT(*) FROM {table_name};")
+        return cursor.fetchone()[0]
+
+    def initialization_db(self, table_name: str) -> None:
+        if not self._table_exists(table_name):
+            self.create_table(table_name=TABLE_NAME)
+
+        if self._count_entries(table_name=TABLE_NAME) == 0:
+            path = os.path.join(os.getcwd(), START_DATA)
+            self.update_db_from_csv_file(file_name=path)
+
+        count_entries = self._count_entries(table_name=TABLE_NAME)
+        print(f"[INFO] Database connection completed successfully. Loaded data: {count_entries} ")
+
+    def create_table(self, table_name: str = '') -> None:
         with self.connection.cursor() as cursor:
             # Create a table in our database if it doesn't exist
-            cursor.execute(
-                """CREATE TABLE  IF NOT EXISTS users(
-                    id serial PRIMARY KEY,
-                    first_name varchar(50),
-                    last_name varchar(50),
-                    email varchar(50));"""
-            )
+            create_table_query = """
+                        CREATE TABLE IF NOT EXISTS %s (
+                            id serial PRIMARY KEY,
+                            first_name varchar(50),
+                            last_name varchar(50),
+                            email varchar(50)
+                        );
+                    """
+            cursor.execute(create_table_query, (AsIs(table_name),))
+
             # Create an index for full-text search if it doesn't exist
             cursor.execute(
                 """
@@ -53,13 +81,12 @@ class NimbleDbSQL(NimbleDB):
                 """
             )
 
-            print("[INFO] Table created successfully")
-
-    def delete_table(self, table_name: str) -> None:
+    def delete_table(self, table_name: str = TABLE_NAME) -> None:
         with self.connection.cursor() as cursor:
-            cursor.execute("""DROP TABLE IF EXISTS users;""")
+            query = "DROP TABLE IF EXISTS %s;"
+            cursor.execute(query, (AsIs(table_name),))
 
-    def update_db_from_csv_file(self, file_name: str) -> None:
+    def update_db_from_csv_file(self, file_name: str = '') -> None:
         with open(file_name, 'r') as csv_file:
             with self.connection.cursor() as cursor:
                 csv_reader = csv.reader(csv_file)
@@ -142,7 +169,7 @@ class NimbleDbSQL(NimbleDB):
 
     def get_all_records(self) -> str:
         with self.connection.cursor() as cursor:
-            select_query = "SELECT first_name, last_name, email FROM users"
+            select_query = "SELECT id, first_name, last_name, email FROM users"
             cursor.execute(select_query)
             results = cursor.fetchall()
 

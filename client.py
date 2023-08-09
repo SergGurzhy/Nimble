@@ -32,7 +32,11 @@ class NimbleDbClient:
 
     def update_info(self) -> None:
         url = f"{self.base_url}/update"
+        response = requests.post(url)
+        print(response)
 
+    def drop_db(self) -> None:
+        url = f"{self.base_url}/drop"
         response = requests.post(url)
         print(response)
 
@@ -40,13 +44,16 @@ class NimbleDbClient:
 if __name__ == '__main__':
 
     base_url = 'http://127.0.0.1:5000/api'
-
     client = NimbleDbClient(base_url)
 
     # Full text search example with GET request
-    query = 'akbar'
+    # query = 'Campo'
     # results_get = client.fulltext_search_get(query)
-    client.update_info()
+    # pprint.pprint(results_get)
+
+    # client.update_info()
+
     # result_all = client.get_all()
     # pprint.pprint(result_all)
 
+    # client.drop_db()

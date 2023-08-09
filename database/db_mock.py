@@ -14,14 +14,14 @@ class MockDB(NimbleDB):
         self.storage = []
         self.create_table()
 
-    def create_table(self) -> None:
+    def create_table(self, table_name: str = '') -> None:
         setattr(self, "storage", [])
 
-    def delete_table(self, table_name: str) -> None:
+    def delete_table(self, table_name: str = '') -> None:
         if hasattr(self, table_name):
             del self.storage
 
-    def update_db_from_csv_file(self, file_name: str) -> None:
+    def update_db_from_csv_file(self, file_name: str = '') -> None:
         path = os.path.join(os.getcwd(), file_name)
         count = 1
         with open(path, newline='') as csvfile:

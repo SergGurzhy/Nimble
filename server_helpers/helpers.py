@@ -5,11 +5,11 @@ import requests
 from dotenv import load_dotenv
 from requests import RequestException
 from datetime import datetime
-from db_factory import get_database
+from server_helpers.db_service import ServiceDB
 
 load_dotenv(sys.path[0] + '/.env')
 
-db = get_database()
+
 url = os.getenv('API_URL').lower().strip()
 token = os.getenv('TOKEN').strip()
 
@@ -18,8 +18,9 @@ headers = {
 }
 
 
-def update_db_daily():
+def update_db_daily(db: ServiceDB) -> None:
     try:
+        print(f'{headers}')
         response = requests.get(url, headers=headers)
         response.raise_for_status()
 
@@ -36,7 +37,3 @@ def update_db_daily():
     except JSONDecodeError as e:
         print(f"The server returned an invalid response: {e}")
         raise e
-
-#
-# if __name__ == '__main__':
-#     update_db_daily()

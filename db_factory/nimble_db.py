@@ -15,11 +15,11 @@ class NimbleDB(ABC):
         pass
 
     @abstractmethod
-    def delete_table(self, table_name: str) -> None:
+    def delete_table(self) -> None:
         pass
 
     @abstractmethod
-    def update_db_from_csv_file(self, file_name: str) -> None:
+    def update_db_from_csv_file(self) -> None:
         pass
 
     @abstractmethod
