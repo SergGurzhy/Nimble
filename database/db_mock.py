@@ -4,7 +4,7 @@ import os
 from dataclasses import asdict
 
 from db_factory.nimble_db import NimbleDB
-from model import Person
+from server_helpers.models.person import Person
 
 
 class MockDB(NimbleDB):

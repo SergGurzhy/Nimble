@@ -1,9 +1,13 @@
 import json
+import sys
 import unittest
+from dotenv import load_dotenv
 from db_factory import get_database
 
 
 class BaseTestCase(unittest.TestCase):
+
+    load_dotenv(sys.path[0] + '/env_test.env')
     db = get_database()
 
     def update_db_with_json(self, file_name: str) -> None:

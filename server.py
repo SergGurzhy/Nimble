@@ -1,6 +1,13 @@
+import os
+import sys
 from flask import Flask, request, jsonify
+from dotenv import load_dotenv
+from requests import RequestException
 from db_factory import get_database
 from server_helpers.helpers import update_db_daily
+
+
+load_dotenv(sys.path[0] + '/.env')
 
 app = Flask(__name__)
 db = get_database()
@@ -23,11 +30,12 @@ def get_all_records():
 
 @app.route('/api/update', methods=['POST'])
 def update_database():
+
     try:
         update_db_daily()
         return jsonify({'message': 'Database update successful'}), 200
-    except Exception as e:
-        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+    except RequestException as e:
+        return jsonify({'error': f'An error occurred connecting to the server: {str(e)}'}), 500
 
 
 if __name__ == '__main__':

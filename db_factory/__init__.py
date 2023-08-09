@@ -6,7 +6,7 @@ from db_factory.nimble_db import NimbleDB
 
 
 def get_database() -> NimbleDB:
-    env_kind = os.environ["DATABASE"].lower()
+    env_kind = os.environ["DATABASE"].lower().strip()
     match env_kind:
         case "sql":
             return NimbleDbSQL()

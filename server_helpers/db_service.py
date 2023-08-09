@@ -10,7 +10,7 @@ class ServiceDB:
         self.db.create_table()
         self.db.update_db_from_csv_file(file_name=file_name)
 
-    def delete_table(self, table_name: str) -> None:
+    def drop_table(self, table_name: str) -> None:
         self.db.delete_table(table_name=table_name)
 
     def get_all_entries(self) -> str:

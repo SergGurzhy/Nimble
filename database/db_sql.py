@@ -1,35 +1,39 @@
 import json
 import os
+import sys
 from dataclasses import asdict
 import psycopg2
 import csv
-from model import Person
+from dotenv import load_dotenv
+from server_helpers.models.db_env import DBEnv
+from server_helpers.models.person import Person
 from db_factory.nimble_db import NimbleDB
 
+load_dotenv(sys.path[0] + '.env')
 
-def get_environment_variables() -> dict:
-    if os.getenv('DATABASE') != 'MOCK':
-        return {
-            'host': os.getenv('DB_HOST').lower(),
-            'user': os.getenv('DB_USER').lower(),
-            'password': os.getenv('DB_PASSWORD').lower(),
-            'db_name': os.getenv('DB_NAME').lower(),
-        }
+
+def get_environment_variables() -> DBEnv:
+    return DBEnv(
+        db_name=os.getenv('POSTGRES_DB'),
+        host=os.getenv('POSTGRES_HOST'),
+        user=os.getenv('POSTGRES_USER'),
+        password=os.getenv('POSTGRES_PASSWORD')
+    )
 
 
 class NimbleDbSQL(NimbleDB):
 
-    ENV = get_environment_variables()
-
     def __init__(self, duplication: bool = False):
+        self.env = get_environment_variables()
         self.duplication = duplication
         self.connection = psycopg2.connect(
-            host=self.ENV['host'],
-            user=self.ENV['user'],
-            password=self.ENV['password'],
-            database=self.ENV['db_name'],
+            host=self.env.host,
+            user=self.env.user,
+            password=self.env.password,
+            database=self.env.db_name,
         )
         self.connection.autocommit = True
+        self.create_table()
 
     def create_table(self) -> None:
         with self.connection.cursor() as cursor:
@@ -70,7 +74,8 @@ class NimbleDbSQL(NimbleDB):
     def insert_value(self, value: Person) -> None:
         with self.connection.cursor() as cursor:
             query = """INSERT INTO users (first_name, last_name, email) VALUES (%s, %s, %s);"""
-            data_to_insert = value.get_fields()
+            data_to_insert = value.get_fields()[1:] # Delete id==none
+            print(f'db_sql.py:  data_to_insert = {data_to_insert}')
             cursor.execute(query, data_to_insert)
 
     def update_value(self, exist_value: Person, new_value: Person) -> None:
@@ -122,10 +127,10 @@ class NimbleDbSQL(NimbleDB):
         """
         with self.connection.cursor() as cursor:
             search_query = """
-                SELECT COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, COALESCE(email, '') as email
-                FROM users
-                WHERE to_tsvector('simple', COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '')) @@ to_tsquery(%s)
-            """
+                        SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, COALESCE(email, '') as email
+                        FROM users
+                        WHERE to_tsvector('simple', COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '')) @@ to_tsquery(%s)
+                    """
 
             cursor.execute(search_query, (query,))
             results = cursor.fetchall()
@@ -176,6 +181,7 @@ class NimbleDbSQL(NimbleDB):
                 [i.get('value') if isinstance(i.get('value'), str) else i.get('value')[0] for i in container[param]][0]
             return value.strip() if value else None
         return None
+
 
 # if __name__ == '__main__':
 #     db = NimbleDbSQL(duplication=True)

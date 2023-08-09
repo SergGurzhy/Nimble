@@ -1,4 +1,3 @@
-from model import Person
 from db_factory.nimble_db import NimbleDB
 
 
@@ -17,7 +16,7 @@ class DB:
 
     def update_db(self, new_value: dict) -> None:
         """Updates the database with new received data."""
-        self.database.update_db(new_value=new_value)
+        self.database.update_db(new_values=new_value)
 
     def fulltext_search(self, query: str) -> str:
         return self.database.fulltext_search(query=query)

@@ -30,6 +30,12 @@ class NimbleDbClient:
             print(f"Error: {response.status_code}")
             return []
 
+    def update_info(self) -> None:
+        url = f"{self.base_url}/update"
+
+        response = requests.post(url)
+        print(response)
+
 
 if __name__ == '__main__':
 
@@ -38,7 +44,9 @@ if __name__ == '__main__':
     client = NimbleDbClient(base_url)
 
     # Full text search example with GET request
-    query = 'Mishyn'
-    results_get = client.fulltext_search_get(query)
-    pprint.pprint(results_get)
+    query = 'akbar'
+    # results_get = client.fulltext_search_get(query)
+    client.update_info()
+    # result_all = client.get_all()
+    # pprint.pprint(result_all)
 

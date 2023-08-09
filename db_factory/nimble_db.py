@@ -1,7 +1,5 @@
 from abc import abstractmethod, ABC
 
-from model import Person
-
 
 class NimbleDB(ABC):
 
