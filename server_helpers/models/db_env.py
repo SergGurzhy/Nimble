@@ -7,3 +7,4 @@ class DBEnv:
     host: str
     user: str
     password: str
+    port: str

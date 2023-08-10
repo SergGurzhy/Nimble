@@ -32,7 +32,6 @@ def get_all_records():
 @app.route('/api/update', methods=['POST'])
 def update_database():
     try:
-        print(f'Token: {os.getenv("TOKEN")}')
         update_db_daily(db)
         return jsonify({'message': 'Database update successful'}), 200
     except RequestException as e:

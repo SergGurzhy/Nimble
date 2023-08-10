@@ -21,7 +21,8 @@ def get_environment_variables() -> DBEnv:
         db_name=os.getenv('POSTGRES_DB'),
         host=os.getenv('POSTGRES_HOST'),
         user=os.getenv('POSTGRES_USER'),
-        password=os.getenv('POSTGRES_PASSWORD')
+        password=os.getenv('POSTGRES_PASSWORD'),
+        port=os.getenv('POSTGRES_PORT')
     )
 
 
