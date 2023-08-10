@@ -205,9 +205,8 @@ class NimbleDbSQL(NimbleDB):
     @staticmethod
     def _get_value(container: dict, param: str):
         if param in container.keys():
-            value = \
-                [i.get('value') if isinstance(i.get('value'), str) else i.get('value')[0] for i in container[param]][0]
-            return value.strip() if value else None
+            values = [i.get('value') for i in container[param]]
+            return values[0].strip() if values else None
         return None
 
 
