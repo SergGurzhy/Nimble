@@ -3,9 +3,9 @@
 This project is designed to retrieve information from the "Nimble" server and store it.
 Information is stored in the fields: first name, last name, email, description.
 
-**There is NO logic for updating records in the Technical Assignment.**
+**The database update strategy was determined independently. Not specified in the specification.**
 
-**The update strategy was decided independently.**
+
 
 ## Logic for Updating and Storing Information:
 - Information is stored only about "person" entities.
