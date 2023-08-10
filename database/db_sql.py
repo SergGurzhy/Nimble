@@ -13,7 +13,7 @@ from psycopg2.extensions import AsIs
 load_dotenv(sys.path[0] + '.env')
 
 TABLE_NAME = 'users'
-START_DATA = 'Nimble Contacts.csv'
+START_DATA = 'Nimble Contacts 2.csv'
 
 
 def get_environment_variables() -> DBEnv:
@@ -65,22 +65,29 @@ class NimbleDbSQL(NimbleDB):
         with self.connection.cursor() as cursor:
             # Create a table in our database if it doesn't exist
             create_table_query = """
-                        CREATE TABLE IF NOT EXISTS %s (
-                            id serial PRIMARY KEY,
-                            first_name varchar(50),
-                            last_name varchar(50),
-                            email varchar(50)
-                        );
-                    """
+                CREATE TABLE IF NOT EXISTS %s (
+                    id serial PRIMARY KEY,
+                    first_name varchar(50),
+                    last_name varchar(50),
+                    email varchar(50),
+                    description varchar(5000)
+                );
+            """
             cursor.execute(create_table_query, (AsIs(table_name),))
 
-            # Create an index for full-text search if it doesn't exist
-            cursor.execute(
-                """
+            # Create index for full-text search on multiple fields
+            create_index_query = """
                 CREATE INDEX IF NOT EXISTS idx_users_fulltext_search 
-                ON users USING gin(to_tsvector('simple', first_name || ' ' || last_name || ' ' || email));
-                """
-            )
+                ON %s USING gin(to_tsvector('simple', first_name || ' ' || last_name || ' ' || email || ' ' || description));
+            """
+            cursor.execute(create_index_query, (AsIs(table_name),))
+
+            # Create index for email field
+            cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_users_email ON %s (email);", (AsIs(table_name),))
+
+            # Create index for first_name and last_name fields together
+            cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_users_name ON %s (first_name, last_name);",
+                           (AsIs(table_name),))
 
     def delete_table(self, table_name: str = TABLE_NAME) -> None:
         with self.connection.cursor() as cursor:
@@ -94,22 +101,24 @@ class NimbleDbSQL(NimbleDB):
                 next(csv_reader)
 
                 for row in csv_reader:
-                    query = f"INSERT INTO users (first_name, last_name, email) VALUES (%s, %s, %s)"
-                    first_name, last_name, email = row
-                    data = (first_name, last_name, email)
+                    query = f"INSERT INTO users (first_name, last_name, email, description) VALUES (%s, %s, %s, %s)"
+                    first_name, last_name, email, description = row
+                    data = (first_name, last_name, email, description)
                     cursor.execute(query, data)
 
     def insert_value(self, value: Person) -> None:
         with self.connection.cursor() as cursor:
-            query = """INSERT INTO users (first_name, last_name, email) VALUES (%s, %s, %s);"""
-            data_to_insert = value.get_fields()[1:] # Delete id==none
+            query = """INSERT INTO users (first_name, last_name, email, description) VALUES (%s, %s, %s, %s);"""
+            data_to_insert = value.get_fields()[1:]  # Delete id==none
             print(f'db_sql.py:  data_to_insert = {data_to_insert}')
             cursor.execute(query, data_to_insert)
 
     def update_value(self, exist_value: Person, new_value: Person) -> None:
         with self.connection.cursor() as cursor:
-            update_query = f"UPDATE users SET first_name = %s, last_name = %s, email = %s WHERE id = %s"
-            data_to_insert = (new_value.first_name, new_value.last_name, new_value.email, exist_value.person_id)
+            update_query = f"UPDATE users SET first_name = %s, last_name = %s, email = %s, description = %s WHERE id " \
+                           f"= %s "
+            data_to_insert = (new_value.first_name, new_value.last_name, new_value.email, exist_value.person_id,
+                              exist_value.description)
             cursor.execute(update_query, data_to_insert)
 
     def update_db(self, new_values: dict) -> None:
@@ -119,14 +128,15 @@ class NimbleDbSQL(NimbleDB):
                     email=self._get_value(container=item['fields'], param='email'),
                     first_name=self._get_value(container=item['fields'], param='first name'),
                     last_name=self._get_value(container=item['fields'], param='last name'),
-                    person_id=None
+                    person_id=None,
+                    description=self._get_value(container=item['fields'], param='description')
                 )
                 if self.duplication:
                     self.insert_value(new_person)
                     continue
 
                 if new_person.email is None:
-                    existing_person = self.get_record(full_name=(new_person.first_name, new_person.last_name))
+                    existing_person = self.get_entry(full_name=(new_person.first_name, new_person.last_name))
 
                     if existing_person is not None:
                         if existing_person.email is None:
@@ -137,11 +147,11 @@ class NimbleDbSQL(NimbleDB):
                         self.insert_value(value=new_person)
 
                 else:
-                    existing_person_email = self.get_record(email=new_person.email)
+                    existing_person_email = self.get_entry(email=new_person.email)
                     if existing_person_email is not None:
                         continue
                     else:
-                        existing_person_full_name = self.get_record(
+                        existing_person_full_name = self.get_entry(
                             full_name=(new_person.first_name, new_person.last_name))
                         if existing_person_full_name is not None:
                             self.update_value(exist_value=existing_person_full_name, new_value=new_person)
@@ -155,29 +165,49 @@ class NimbleDbSQL(NimbleDB):
         """
         with self.connection.cursor() as cursor:
             search_query = """
-                        SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, COALESCE(email, '') as email
+                        SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, 
+                               COALESCE(email, '') as email, COALESCE(description, '') as description
                         FROM users
-                        WHERE to_tsvector('simple', COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '')) @@ to_tsquery(%s)
+                        WHERE to_tsvector('simple', 
+                            COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '') || ' ' || COALESCE(description, '')
+                        ) @@ to_tsquery(%s)
                     """
 
             cursor.execute(search_query, (query,))
             results = cursor.fetchall()
 
-            # Converting the results to a list of Person objects
-            persons = [Person(*result) for result in results]
+            # Converting the results to a list of dictionaries
+            persons = [
+                {
+                    "id": result[0],
+                    "first_name": result[1],
+                    "last_name": result[2],
+                    "email": result[3],
+                    "description": result[4]
+                }
+                for result in results
+            ]
         # Converting the results to JSON
-        return json.dumps(persons, default=lambda x: asdict(x))
+        return json.dumps(persons)
 
-    def get_all_records(self) -> str:
+    def get_all_entries(self) -> str:
         with self.connection.cursor() as cursor:
-            select_query = "SELECT id, first_name, last_name, email FROM users"
+            select_query = "SELECT id, first_name, last_name, email, description FROM users"
             cursor.execute(select_query)
             results = cursor.fetchall()
 
-        persons = [Person(person_id=row[0], first_name=row[1], last_name=row[2], email=row[3]) for row in results]
+        persons = [
+            Person(
+                person_id=row[0],
+                first_name=row[1],
+                last_name=row[2],
+                email=row[3],
+                description=row[4]
+                    ) for row in results
+        ]
         return json.dumps(persons, default=lambda x: asdict(x))
 
-    def get_record(self, id: str = '', email: str = '', full_name: tuple[str, str] | None = None) -> Person | None:
+    def get_entry(self, id: str = '', email: str = '', full_name: tuple[str, str] | None = None) -> Person | None:
         with self.connection.cursor() as cursor:
             if id:
                 select_query = f"SELECT id, first_name, last_name, email FROM users WHERE id = %s"
@@ -212,8 +242,4 @@ class NimbleDbSQL(NimbleDB):
 
 # if __name__ == '__main__':
 #     db = NimbleDbSQL(duplication=True)
-#     db.create_db()
-#     db.update_db_from_csv_file(file_name='../Nimble Contacts.csv')
-# db.update_db()
-
-# db.delete_table(table_name='users')
+#     # db.delete_table('users')

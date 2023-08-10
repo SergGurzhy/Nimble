@@ -7,6 +7,7 @@ class Person:
     first_name: str
     last_name: str
     email: str
+    description: str
 
     def get_fields(self) -> tuple:
         person_dict: dict[str] = asdict(self)

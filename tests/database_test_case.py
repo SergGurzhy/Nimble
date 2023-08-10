@@ -5,13 +5,30 @@ class DatabaseTestCase(BaseTestCase):
 
     def setUp(self) -> None:
         self.initial_state_mock_db = [
-            {'person_id': '1', 'first_name': 'Oleg', 'last_name': 'Mishyn', 'email': 'mystylename@gmail.com'},
-            {'person_id': '2', 'first_name': 'Ken', 'last_name': 'Underwood III',
-             'email': 'kenneth.underwood@yahoofinance.com'},
-            {'person_id': '3', 'first_name': 'kitty', 'last_name': 'akbar', 'email': None}
+            {
+                'person_id': '1',
+                'first_name': 'Oleg',
+                'last_name': 'Mishyn',
+                'email': 'mystylenameg@gmail.com',
+                'description': 'Seasoned B2B.'
+            },
+            {
+                'person_id': '2',
+                'first_name': 'Ken',
+                'last_name': 'Underwood III',
+                'email': 'kenneth.underwood@yahoofinance.com',
+                'description': 'Accomplished business development.'
+            },
+            {
+                'person_id': '3',
+                'first_name': 'kitty',
+                'last_name': 'akbar', ''
+                'email': None,
+                'description': 'Dynamic sales.'
+            }
         ]
         self.db.create_table()
-        self.db.update_db_from_csv_file(file_name='test_data/test_contacts.csv')
+        self.db.update_db_from_csv_file(file_name='test_data/test_contacts 2.csv')
 
     def tearDown(self) -> None:
         self.db.delete_table(table_name='storage')

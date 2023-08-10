@@ -36,7 +36,7 @@ class NimbleDB(ABC):
         pass
 
     @abstractmethod
-    def get_all_records(self) -> str:
+    def get_all_entries(self) -> str:
         """
         :return: json
         """

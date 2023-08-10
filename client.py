@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     # client.update_info()
 
-    # result_all = client.get_all()
-    # pprint.pprint(result_all)
+    result_all = client.get_all()
+    pprint.pprint(result_all)
 
     # client.drop_db()

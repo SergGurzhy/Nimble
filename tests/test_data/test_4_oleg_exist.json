@@ -112,7 +112,7 @@
           {
             "label": "description",
             "modifier": "twitter",
-            "value": "Pioneer & creator of CRM solutions, CEO - Nimble.com, Founder of GoldMine.                                                   Interests; Social Business, Customer Lifecycle, Acquisition,                                                   Enchantment & Retention.",
+            "value": "Pioneer & creator",
             "is_primary": false
           }
         ],
@@ -274,6 +274,14 @@
             "label": "first name",
             "modifier": "",
             "value": "Oleg",
+            "is_primary": false
+          }
+        ],
+        "description": [
+          {
+            "label": "description",
+            "modifier": "twitter",
+            "value": "Seasoned B2B.",
             "is_primary": false
           }
         ],

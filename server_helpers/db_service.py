@@ -10,7 +10,7 @@ class ServiceDB:
         self.db.delete_table()
 
     def get_all_entries(self) -> str:
-        return self.db.get_all_records()
+        return self.db.get_all_entries()
 
     def full_text_search(self, query: str) -> str:
         return self.db.fulltext_search(query)

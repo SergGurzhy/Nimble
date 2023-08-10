@@ -22,6 +22,9 @@ class MockDB(NimbleDB):
             del self.storage
 
     def update_db_from_csv_file(self, file_name: str = '') -> None:
+        def get_value(data: str) -> str | None:
+            return data if len(data) > 0 else None
+
         path = os.path.join(os.getcwd(), file_name)
         count = 1
         with open(path, newline='') as csvfile:
@@ -30,9 +33,10 @@ class MockDB(NimbleDB):
                 self.storage.append(
                     {
                         'person_id': str(count),
-                        'first_name': row['first name'],
-                        'last_name': row['last name'],
-                        'email': row['Email']
+                        'first_name': get_value(row['first name']),
+                        'last_name': get_value(row['last name']),
+                        'email': get_value(row['email']),
+                        'description': get_value(row['description'])
                     }
                 )
                 count += 1
@@ -73,7 +77,8 @@ class MockDB(NimbleDB):
                     email=self._get_value(container=item['fields'], param='email'),
                     first_name=self._get_value(container=item['fields'], param='first name'),
                     last_name=self._get_value(container=item['fields'], param='last name'),
-                    person_id=str(len(self.storage) + 1)
+                    person_id=str(len(self.storage) + 1),
+                    description=self._get_value(container=item['fields'], param='description')
                 )
                 if self.duplication:
                     self.insert_value(new_person)
@@ -106,7 +111,7 @@ class MockDB(NimbleDB):
         persons = [Person(**record) for record in results]
         return json.dumps(persons, default=lambda x: asdict(x))
 
-    def get_all_records(self) -> str:
+    def get_all_entries(self) -> str:
         persons = [Person(**rec) for rec in self.storage]
         return json.dumps(persons, default=lambda x: asdict(x))
 
