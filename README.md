@@ -13,8 +13,8 @@ Information is stored in the fields: first name, last name, email, description.
 - A person may not have a description.
 - In the database, records with the same email for a person cannot be stored.
 - The database allows storing persons with the same full name.
-- A person can delete an email.
-- A person can add an email.
+- A person can delete an Email.
+- A person can add an Email.
 
 ## Upon Starting the Service:
 - If the database is empty: initialization and populating of the database are performed from the Nimble Contacts.csv file.
