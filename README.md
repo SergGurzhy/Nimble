@@ -22,11 +22,11 @@ Information is stored in the fields: first name, last name, email, description.
 
 ## Possible Actions with the Service:
 
-1. **GET**  `http://{base url}/api/search`  with param: (a string you want to find occurrences of). Returns: JSON with records containing the given word.
-2. **GET**  `http://{base url}/api`       Returns: JSON with all records in the database, status code.
-3. **POST** `http://{base url}/api/drop`  Deletes all information in the database, status code.
-4. **POST** `http://{base url}/api/update`  Updates the database from the Nimble API.
-5. **POST** `http://{base url}/api/initialization`  Creates a table and populates it with data from the Nimble Contacts.csv file.
+1. **GET**  `http://localhost:5000/api/search`  with param: (a string you want to find occurrences of). Returns: JSON with records containing the given word.
+2. **GET**  `http://localhost:5000/api`       Returns: JSON with all records in the database, status code.
+3. **POST** `http://localhost:5000/api/drop`  Deletes all information in the database, status code.
+4. **POST** `http://localhost:5000/api/update`  Updates the database from the Nimble API.
+5. **POST** `http://localhost:5000/api/initialization`  Creates a table and populates it with data from the Nimble Contacts.csv file.
 
 ### Getting Started
 

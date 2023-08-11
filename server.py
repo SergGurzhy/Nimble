@@ -10,11 +10,12 @@ from server_helpers.helpers import update_db_daily
 load_dotenv(sys.path[0] + '/.env')
 
 app = Flask(__name__)
+print('[INFO] Server start...')
 db = ServiceDB(get_database())
 
 
 @app.route('/api/search', methods=['GET'])
-def search_contacts():
+def full_text_search():
     query = request.args.get('query')
     if query:
         search_results = db.full_text_search(query)
@@ -25,7 +26,11 @@ def search_contacts():
 
 @app.route('/api', methods=['GET'])
 def get_all_records():
-    return db.get_all_entries()
+    try:
+        data = db.get_all_entries()
+        return jsonify(data), 200
+    except RequestException as e:
+        return jsonify({'error': f'An error occurred connecting to the server: {str(e)}'}), 500
 
 
 @app.route('/api/update', methods=['POST'])

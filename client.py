@@ -1,3 +1,4 @@
+import json
 import pprint
 import requests
 
@@ -13,7 +14,7 @@ class NimbleDbClient:
 
         if response.status_code == 200:
             data = response.json()
-            return data
+            return json.loads(data)
         else:
             print(f"Error: {response.status_code}")
             return []
@@ -25,7 +26,7 @@ class NimbleDbClient:
 
         if response.status_code == 200:
             data = response.json()
-            return data
+            return json.loads(data)
         else:
             print(f"Error: {response.status_code}")
             return []
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     client = NimbleDbClient(base_url)
 
     # Full text search example with GET request
-    # query = 'Campo'
+    # query = 'Ferrara'
     # results_get = client.fulltext_search_get(query)
     # pprint.pprint(results_get)
 

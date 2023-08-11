@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-import time
 from dataclasses import asdict
 import psycopg2
 import csv
@@ -40,6 +39,7 @@ class NimbleDbSQL(NimbleDB):
             password=self.env.password,
             database=self.env.db_name,
         )
+        print('[INFO] Database connection successful')
         self.connection.autocommit = True
         self.initialization_db(table_name=TABLE_NAME)
 
@@ -56,6 +56,7 @@ class NimbleDbSQL(NimbleDB):
     def initialization_db(self, table_name: str) -> None:
         if not self._table_exists(table_name):
             self.create_table(table_name=TABLE_NAME)
+            print('[INFO] Table creation successful')
 
         if self._count_entries(table_name=TABLE_NAME) == 0:
             path = os.path.join(os.getcwd(), START_DATA)
@@ -168,13 +169,13 @@ class NimbleDbSQL(NimbleDB):
         """
         with self.connection.cursor() as cursor:
             search_query = """
-                        SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, 
-                               COALESCE(email, '') as email, COALESCE(description, '') as description
-                        FROM users
-                        WHERE to_tsvector('simple', 
-                            COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '') || ' ' || COALESCE(description, '')
-                        ) @@ to_tsquery(%s)
-                    """
+                SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, 
+                       COALESCE(email, '') as email, COALESCE(description, '') as description
+                FROM users
+                WHERE to_tsvector('simple', 
+                    COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '') || ' ' || COALESCE(description, '')
+                ) @@ plainto_tsquery(%s)
+            """
 
             cursor.execute(search_query, (query,))
             results = cursor.fetchall()
@@ -213,13 +214,13 @@ class NimbleDbSQL(NimbleDB):
     def get_entry(self, id: str = '', email: str = '', full_name: tuple[str, str] | None = None) -> Person | None:
         with self.connection.cursor() as cursor:
             if id:
-                select_query = f"SELECT id, first_name, last_name, email FROM users WHERE id = %s"
+                select_query = f"SELECT id, first_name, last_name, email, description FROM users WHERE id = %s"
                 cursor.execute(select_query, (id,))
                 result = cursor.fetchone()
                 return Person(*result) if result else None
 
             if email:
-                select_query = f"SELECT id, first_name, last_name, email FROM users WHERE email = %s"
+                select_query = f"SELECT id, first_name, last_name, email, description FROM users WHERE email = %s"
                 cursor.execute(select_query, (email,))
                 result = cursor.fetchone()
                 return Person(*result) if result else None
