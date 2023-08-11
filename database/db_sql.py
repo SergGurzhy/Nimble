@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 from dataclasses import asdict
 import psycopg2
 import csv
@@ -9,6 +10,7 @@ from server_helpers.models.db_env import DBEnv
 from server_helpers.models.person import Person
 from db_factory.nimble_db import NimbleDB
 from psycopg2.extensions import AsIs
+from retry import retry
 
 load_dotenv(sys.path[0] + '.env')
 
@@ -28,6 +30,7 @@ def get_environment_variables() -> DBEnv:
 
 class NimbleDbSQL(NimbleDB):
 
+    @retry(psycopg2.OperationalError, tries=3, delay=1)
     def __init__(self, duplication: bool = False):
         self.env = get_environment_variables()
         self.duplication = duplication

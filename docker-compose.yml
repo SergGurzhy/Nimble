@@ -1,0 +1,29 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    container_name: nimble-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_DB: nimble_data
+    ports:
+      - "5432:5432"
+    networks:
+      - nimble-network
+
+  nimble-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nimble-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - nimble-network
+
+networks:
+  nimble-network:
+    driver: bridge
