@@ -41,6 +41,16 @@ class NimbleDbClient:
         response = requests.post(url)
         print(response)
 
+    def initialisation_db(self, table_name: str) -> None:
+        url = f"{self.base_url}/search"
+        r = requests.post(url, data=table_name)
+        if r.status_code != 200:
+            raise RuntimeError(
+                f"Can't perform POST /api/initialization. Status: {r.status_code}, body: {r.json()}"
+            )
+        else:
+            print(f'[INFO] {r.json()}')
+
 
 if __name__ == '__main__':
 

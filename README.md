@@ -3,11 +3,24 @@
 This project is designed to retrieve information from the "Nimble" server and store it.
 Information is stored in the fields: first name, last name, email, description.
 
-**The database update strategy was determined independently. Not specified in the specification.**
+### Getting Started
+
+#### 1. Running the Entire Project in Docker
+
+- Clone the repository to your local computer:
+ https://github.com/SergGurzhy/Nimble.git
+- In the `.env` file, enter your database parameters.
+- Create the database:
+```sh
+  docker run --name nimble_data --env-file .env -p 5432:5432 -d postgres
+  ```
 
 
 
 ## Logic for Updating and Storing Information:
+
+**The database update strategy was determined independently. Not specified in the specification.**
+
 - Information is stored only about "person" entities.
 - A person may not have an email.
 - A person may not have a description.
@@ -28,13 +41,3 @@ Information is stored in the fields: first name, last name, email, description.
 4. **POST** `http://localhost:5000/api/update`  Updates the database from the Nimble API.
 5. **POST** `http://localhost:5000/api/initialization`  Creates a table and populates it with data from the Nimble Contacts.csv file.
 
-### Getting Started
-
-#### 1. Running the Entire Project in Docker
-
-- Clone the repository to your local computer:
- https://github.com/SergGurzhy/Nimble.git
-- In the `.env` file, enter your database parameters.
-- Create the database:
-  ```sh
-  docker run --name nimble_data --env-file .env -p 5432:5432 -d postgres

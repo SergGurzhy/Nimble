@@ -51,5 +51,15 @@ def drop_table():
         return jsonify({'error': f'An error occurred connecting to the server: {str(e)}'}), 500
 
 
+@app.route('/api/initialization', methods=['POST'])
+def initialisation_db():
+    query = request.args.get('query').strip()
+    try:
+        db.initialisation_db(table_name=query)
+        return jsonify({'message': 'DB initialisation successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': f'An error occurred connecting to the DB: {str(e)}'}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)

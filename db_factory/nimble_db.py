@@ -15,6 +15,10 @@ class NimbleDB(ABC):
         pass
 
     @abstractmethod
+    def initialization_db(self, table_name: str):
+        pass
+
+    @abstractmethod
     def delete_table(self) -> None:
         pass
 

@@ -9,6 +9,9 @@ class ServiceDB:
     def drop_table(self) -> None:
         self.db.delete_table()
 
+    def initialisation_db(self, table_name: str) -> None:
+        self.db.initialization_db(table_name=table_name)
+
     def get_all_entries(self) -> str:
         return self.db.get_all_entries()
 
