@@ -2,6 +2,7 @@
 
 This project is designed to retrieve information from the "Nimble" server and store it.
 Information is stored in the fields: first name, last name, email, description.
+Of course, this project is done as an example, and there are many things that need to be improved.
 
 ### Getting Started
 
@@ -10,7 +11,7 @@ Information is stored in the fields: first name, last name, email, description.
 - Clone the repository to your local computer:
  https://github.com/SergGurzhy/Nimble.git
 - In the `.env` file, enter your database parameters.
-- Create the database:
+- Create the database (You should have Docker installed and running.):
 ```sh
   docker run --name nimble_data --env-file .env -p 5432:5432 -d postgres
   ```

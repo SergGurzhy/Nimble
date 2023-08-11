@@ -1,29 +1,32 @@
-version: '3'
-services:
-  postgres:
-    image: postgres
-    container_name: nimble-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qwerty
-      POSTGRES_DB: nimble_data
-    ports:
-      - "5432:5432"
-    networks:
-      - nimble-network
+version: '3.9'
 
-  nimble-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: nimble-server
+services:
+
+  postgres:
+    env_file: .env
+    image: postgres:latest
     ports:
-      - "5000:5000"
+      - 5432:5432
+    restart: unless-stopped
+    networks:
+      - backend
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  flask_web:
+    env_file: .env
+    networks:
+      - backend
+    build: .
+    ports:
+       - 0.0.0.0:5000:5000
+    restart: unless-stopped
     depends_on:
       - postgres
-    networks:
-      - nimble-network
+
+volumes:
+  pgdata:
+    driver: local
 
 networks:
-  nimble-network:
+  backend:
     driver: bridge

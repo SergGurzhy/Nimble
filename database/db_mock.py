@@ -6,13 +6,18 @@ from dataclasses import asdict
 from db_factory.nimble_db import NimbleDB
 from server_helpers.models.person import Person
 
+INITIALISE_DATA = 'test_contacts 2.csv'
+
 
 class MockDB(NimbleDB):
 
     def __init__(self, duplication: bool = False):
         self.duplication = duplication
         self.storage = []
-        self.create_table()
+        self.initialization_db(table_name='test')
+
+    def initialization_db(self, table_name: str):
+        self.update_db_from_csv_file(file_name=INITIALISE_DATA)
 
     def create_table(self, table_name: str = '') -> None:
         setattr(self, "storage", [])
