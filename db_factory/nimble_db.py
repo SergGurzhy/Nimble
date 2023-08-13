@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 class NimbleDB(ABC):
 
     @abstractmethod
-    def create_table(self) -> None:
+    def create_table(self, table_name: str) -> None:
         """
         Create DB with fields:
                 id serial PRIMARY KEY,
@@ -19,15 +19,15 @@ class NimbleDB(ABC):
         pass
 
     @abstractmethod
-    def delete_table(self) -> None:
+    def delete_table(self, table_name: str) -> None:
         pass
 
     @abstractmethod
-    def update_db_from_csv_file(self) -> None:
+    def update_db_from_csv_file(self, file_name: str) -> None:
         pass
 
     @abstractmethod
-    def update_db(self, new_values: dict) -> None:
+    def update_db(self, new_values: dict) -> dict[str]:
         """Updates the database with new received data."""
         pass
 

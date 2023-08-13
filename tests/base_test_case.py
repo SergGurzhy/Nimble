@@ -2,18 +2,11 @@ import json
 import sys
 import unittest
 from dotenv import load_dotenv
-from db_factory import get_database
 
 
 class BaseTestCase(unittest.TestCase):
 
     load_dotenv(sys.path[0] + '/env_test.env')
-    db = get_database()
-
-    def update_db_with_json(self, file_name: str) -> None:
-        with open(file_name, "r") as json_file:
-            test_data = json.load(json_file)
-        self.db.update_db(new_values=test_data)
 
     def count_elements_json_string(self, json_string: str):
         """
@@ -23,3 +16,12 @@ class BaseTestCase(unittest.TestCase):
         """
         return len(json.loads(json_string))
 
+    @staticmethod
+    def get_test_json(file_name: str) -> str:
+        """
+
+        :return: json
+        """
+        with open(file_name, "r") as json_file:
+            data = json.load(json_file)
+        return data

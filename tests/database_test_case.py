@@ -1,7 +1,12 @@
+import json
+
+from db_factory import get_database
 from tests.base_test_case import BaseTestCase
 
 
 class DatabaseTestCase(BaseTestCase):
+
+    db = get_database()
 
     def setUp(self) -> None:
         self.initial_state_mock_db = [
@@ -27,8 +32,8 @@ class DatabaseTestCase(BaseTestCase):
                 'description': 'Dynamic sales.'
             }
         ]
-        self.db.create_table()
-        self.db.update_db_from_csv_file(file_name='test_data/test_contacts 2.csv')
+        self.db.create_table(table_name='storage')
+        self.db.initialization_db('storage')
 
     def tearDown(self) -> None:
         self.db.delete_table(table_name='storage')
@@ -37,3 +42,8 @@ class DatabaseTestCase(BaseTestCase):
     def get_id_entry(self, email: str) -> str | None:
         result = [rec['person_id'] for rec in self.initial_state_mock_db if rec.get('email') == email]
         return result[0]
+
+    def update_db_with_json(self, file_name: str) -> None:
+        with open(file_name, "r") as json_file:
+            test_data = json.load(json_file)
+        self.db.update_db(new_values=test_data)

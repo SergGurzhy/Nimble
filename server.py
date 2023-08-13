@@ -6,7 +6,6 @@ from db_factory import get_database
 from server_helpers.db_service import ServiceDB
 from server_helpers.helpers import update_db_daily
 
-
 load_dotenv(sys.path[0] + '/.env')
 
 app = Flask(__name__)
@@ -36,8 +35,11 @@ def get_all_records():
 @app.route('/api/update', methods=['POST'])
 def update_database():
     try:
-        update_db_daily(db)
-        return jsonify({'message': 'Database update successful'}), 200
+        response = update_db_daily(db)
+        if 'ERROR' not in response:
+            return jsonify({'message': 'Database update successful'}), 200
+        raise RequestException
+
     except RequestException as e:
         return jsonify({'error': f'An error occurred connecting to the server: {str(e)}'}), 500
 
@@ -62,4 +64,5 @@ def initialisation_db():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)

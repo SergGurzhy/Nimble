@@ -9,7 +9,7 @@ from server_helpers.models.db_env import DBEnv
 from server_helpers.models.person import Person
 from db_factory.nimble_db import NimbleDB
 from psycopg2.extensions import AsIs
-from retry import retry
+
 
 load_dotenv(sys.path[0] + '.env')
 
@@ -65,7 +65,7 @@ class NimbleDbSQL(NimbleDB):
         count_entries = self._count_entries(table_name=TABLE_NAME)
         print(f"[INFO] Database connection completed successfully. Loaded data: {count_entries} ")
 
-    def create_table(self, table_name: str = '') -> None:
+    def create_table(self, table_name: str) -> None:
         with self.connection.cursor() as cursor:
             # Create a table in our database if it doesn't exist
             create_table_query = """
@@ -98,7 +98,7 @@ class NimbleDbSQL(NimbleDB):
             query = "DROP TABLE IF EXISTS %s;"
             cursor.execute(query, (AsIs(table_name),))
 
-    def update_db_from_csv_file(self, file_name: str = '') -> None:
+    def update_db_from_csv_file(self, file_name: str) -> None:
         with open(file_name, 'r') as csv_file:
             with self.connection.cursor() as cursor:
                 csv_reader = csv.reader(csv_file)
@@ -125,7 +125,9 @@ class NimbleDbSQL(NimbleDB):
                               exist_value.description)
             cursor.execute(update_query, data_to_insert)
 
-    def update_db(self, new_values: dict) -> None:
+    def update_db(self, new_values: dict) -> dict[str]:
+        count_insert = 0
+        count_update = 0
         for item in new_values['resources']:
             if item['record_type'] == 'person':
                 new_person = Person(
@@ -137,6 +139,7 @@ class NimbleDbSQL(NimbleDB):
                 )
                 if self.duplication:
                     self.insert_value(new_person)
+                    count_insert += 1
                     continue
 
                 if new_person.email is None:
@@ -147,9 +150,10 @@ class NimbleDbSQL(NimbleDB):
                             continue
                         else:
                             self.update_value(exist_value=existing_person, new_value=new_person)
+                            count_update += 1
                     else:
                         self.insert_value(value=new_person)
-
+                        count_insert += 1
                 else:
                     existing_person_email = self.get_entry(email=new_person.email)
                     if existing_person_email is not None:
@@ -159,8 +163,12 @@ class NimbleDbSQL(NimbleDB):
                             full_name=(new_person.first_name, new_person.last_name))
                         if existing_person_full_name is not None:
                             self.update_value(exist_value=existing_person_full_name, new_value=new_person)
+                            count_update += 1
                         else:
                             self.insert_value(value=new_person)
+                            count_insert += 1
+
+        return {'count_insert': str(count_insert), 'count_update': str(count_update)}
 
     def fulltext_search(self, query: str) -> str:
         """

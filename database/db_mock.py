@@ -6,7 +6,7 @@ from dataclasses import asdict
 from db_factory.nimble_db import NimbleDB
 from server_helpers.models.person import Person
 
-INITIALISE_DATA = 'test_contacts 2.csv'
+INITIALIZE_DATA = 'test_data/test_contacts_2.csv'
 
 
 class MockDB(NimbleDB):
@@ -14,19 +14,18 @@ class MockDB(NimbleDB):
     def __init__(self, duplication: bool = False):
         self.duplication = duplication
         self.storage = []
-        self.initialization_db(table_name='test')
 
     def initialization_db(self, table_name: str):
-        self.update_db_from_csv_file(file_name=INITIALISE_DATA)
+        self.update_db_from_csv_file(file_name=INITIALIZE_DATA)
 
-    def create_table(self, table_name: str = '') -> None:
+    def create_table(self, table_name: str) -> None:
         setattr(self, "storage", [])
 
-    def delete_table(self, table_name: str = '') -> None:
+    def delete_table(self, table_name: str) -> None:
         if hasattr(self, table_name):
             del self.storage
 
-    def update_db_from_csv_file(self, file_name: str = '') -> None:
+    def update_db_from_csv_file(self, file_name: str) -> None:
         def get_value(data: str) -> str | None:
             return data if len(data) > 0 else None
 
@@ -75,7 +74,9 @@ class MockDB(NimbleDB):
                     result.append(rec)
             return Person(**result[0]) if len(result) > 0 else None
 
-    def update_db(self, new_values: dict) -> None:
+    def update_db(self, new_values: dict) -> dict[str]:
+        count_insert = 0
+        count_update = 0
         for item in new_values['resources']:
             if item['record_type'] == 'person':
                 new_person = Person(
@@ -87,6 +88,7 @@ class MockDB(NimbleDB):
                 )
                 if self.duplication:
                     self.insert_value(new_person)
+                    count_insert += 1
                     continue
 
                 if new_person.email is None:
@@ -97,9 +99,10 @@ class MockDB(NimbleDB):
                             continue
                         else:
                             self.update_value(exist_value=existing_person, new_value=new_person)
+                            count_update += 1
                     else:
                         self.insert_value(value=new_person)
-
+                        count_insert += 1
                 else:
                     existing_person_email = self.get_record(email=new_person.email)
                     if existing_person_email is not None:
@@ -108,8 +111,11 @@ class MockDB(NimbleDB):
                         existing_person_full_name = self.get_record(full_name=(new_person.first_name, new_person.last_name))
                         if existing_person_full_name is not None:
                             self.update_value(exist_value=existing_person_full_name, new_value=new_person)
+                            count_update += 1
                         else:
                             self.insert_value(value=new_person)
+                            count_insert += 1
+        return {'count_insert': str(count_insert), 'count_update': str(count_update)}
 
     def fulltext_search(self, query: str) -> str:
         results = [rec for rec in self.storage if query.lower() in ' '.join(rec.values()).lower()]

@@ -11,10 +11,18 @@ Of course, this project is done as an example, and there are many things that ne
 - Clone the repository to your local computer:
  https://github.com/SergGurzhy/Nimble.git
 - In the `.env` file, enter your database parameters.
-- Create the database (You should have Docker installed and running.):
+- Run service  (You should have Docker installed and running.):
 ```sh
-  docker run --name nimble_data --env-file .env -p 5432:5432 -d postgres
+  docker-compose up --build -d
   ```
+## Possible Actions with the Service:
+
+1. **GET**  `http://localhost:5000/api/search`  with param: (a string you want to find occurrences of). Returns: JSON with records containing the given word.
+2. **GET**  `http://localhost:5000/api`       Returns: JSON with all records in the database, status code.
+3. **POST** `http://localhost:5000/api/drop`  Deletes all information in the database, status code.
+4. **POST** `http://localhost:5000/api/update`  Updates the database from the Nimble API.
+5. **POST** `http://localhost:5000/api/initialization`  Creates a table and populates it with data from the Nimble Contacts.csv file.
+
 
 
 
@@ -31,14 +39,12 @@ Of course, this project is done as an example, and there are many things that ne
 - A person can add an Email.
 
 ## Upon Starting the Service:
-- If the database is empty: initialization and populating of the database are performed from the Nimble Contacts.csv file.
+- If the database is empty: initialization and populating of the database are performed from the Nimble Contacts 2.csv file.
 - If information exists: connection to the database is established.
 
-## Possible Actions with the Service:
+## Running Tests
 
-1. **GET**  `http://localhost:5000/api/search`  with param: (a string you want to find occurrences of). Returns: JSON with records containing the given word.
-2. **GET**  `http://localhost:5000/api`       Returns: JSON with all records in the database, status code.
-3. **POST** `http://localhost:5000/api/drop`  Deletes all information in the database, status code.
-4. **POST** `http://localhost:5000/api/update`  Updates the database from the Nimble API.
-5. **POST** `http://localhost:5000/api/initialization`  Creates a table and populates it with data from the Nimble Contacts.csv file.
-
+- Tests are located in the `tests` directory.
+- Tests that validate the logic of the database update function can be found in `test_update_db.py`.
+- Tests that verify the functionality of the Nimble API's `endpoint are available.
+- Note that the test suites are not exhaustive and may not cover all scenarios.

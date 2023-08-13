@@ -18,19 +18,18 @@ headers = {
 }
 
 
-def update_db_daily(db: ServiceDB) -> None:
+def update_db_daily(db: ServiceDB) -> dict[str]:
     try:
-        print(f'{headers}')
         response = requests.get(url, headers=headers)
-        response.raise_for_status()
-
-        new_data = response.json()
-
-        db.update_db(new_data)
-
+        if response.status_code == 200:
+            response.raise_for_status()
+            new_data = response.json()
+            update_info = db.update_db(new_data)
+        else:
+            return {'ERROR': f'An error occurred connecting to the server. Status_code: {response.status_code}'}
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
         print(f"The database has been successfully updated. Update time: {current_time}")
-
+        return update_info
     except RequestException as e:
         print(f"An error occurred connecting to the server: {e}")
         raise e
