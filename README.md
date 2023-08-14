@@ -22,8 +22,8 @@ If you want to change the access settings, modify the relevant variables in the 
 
 1. **GET**  `http://localhost:5000/api/search?query=<your query word>` Returns: JSON with records containing the given word.
 2. **GET**  `http://localhost:5000/api` Returns: JSON with all records in the database, status code.
-3. **POST** `http://localhost:5000/api/reset` Clears the database, creates a table, and fills it with data from the **Nimble Contacts.csv** file.
-4. **POST** `http://localhost:5000/api/update`  Updates the database from the **Nimble API**.
+3. **POST** `http://localhost:5000/api/reset` Clears the database, creates a table, and fills it with data from the *Nimble Contacts.csv* file.
+4. **POST** `http://localhost:5000/api/update`  Updates the database from the *Nimble API*.
 
 
 
