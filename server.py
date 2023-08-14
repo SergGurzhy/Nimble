@@ -8,7 +8,7 @@ from server_helpers.helpers import update_db_daily
 
 TABLE_NAME = 'users'
 
-load_dotenv(sys.path[0] + '/.env')
+load_dotenv(sys.path[0] + '/example.env')
 
 app = Flask(__name__)
 print('[INFO] Server start...')

@@ -11,7 +11,7 @@ from db_factory.nimble_db import NimbleDB
 from psycopg2.extensions import AsIs
 
 
-load_dotenv(sys.path[0] + '.env')
+load_dotenv(sys.path[0] + 'example.env')
 
 TABLE_NAME = 'users'
 START_DATA = 'Nimble Contacts.csv'
@@ -176,30 +176,31 @@ class NimbleDbSQL(NimbleDB):
         """
         with self.connection.cursor() as cursor:
             search_query = """
-                SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, 
-                       COALESCE(email, '') as email, COALESCE(description, '') as description
-                FROM users
-                WHERE to_tsvector('simple', 
-                    COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '') || ' ' || COALESCE(description, '')
-                ) @@ plainto_tsquery(%s)
-            """
+                       SELECT id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, 
+                              COALESCE(email, '') as email, COALESCE(description, '') as description
+                       FROM users
+                       WHERE to_tsvector('simple', 
+                           COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '') || ' ' || COALESCE(description, '')
+                       ) @@ to_tsquery(%s)
+                   """
 
             cursor.execute(search_query, (query,))
             results = cursor.fetchall()
 
+            persons = []
             # Converting the results to a list of dictionaries
-            persons = [
-                {
-                    "id": result[0],
-                    "first_name": result[1],
-                    "last_name": result[2],
-                    "email": result[3],
-                    "description": result[4]
-                }
-                for result in results
-            ]
+            for result in results:
+                person = Person(
+                    person_id=result[0],
+                    first_name=result[1],
+                    last_name=result[2],
+                    email=result[3],
+                    description=result[4]
+                )
+                persons.append(person)
+
         # Converting the results to JSON
-        return json.dumps(persons)
+        return json.dumps(persons, default=lambda x: asdict(x))
 
     def get_all_entries(self) -> str:
         with self.connection.cursor() as cursor:

@@ -7,7 +7,7 @@ from requests import RequestException
 from datetime import datetime
 from server_helpers.db_service import ServiceDB
 
-load_dotenv(sys.path[0] + '/.env')
+load_dotenv(sys.path[0] + '/example.env')
 
 
 url = os.getenv('API_URL').lower().strip()
