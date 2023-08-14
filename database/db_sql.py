@@ -14,7 +14,7 @@ from psycopg2.extensions import AsIs
 load_dotenv(sys.path[0] + '.env')
 
 TABLE_NAME = 'users'
-START_DATA = 'Nimble Contacts 2.csv'
+START_DATA = 'Nimble Contacts.csv'
 
 
 def get_environment_variables() -> DBEnv:
@@ -29,7 +29,6 @@ def get_environment_variables() -> DBEnv:
 
 class NimbleDbSQL(NimbleDB):
 
-    # @retry(psycopg2.OperationalError, tries=50, delay=5)
     def __init__(self, duplication: bool = False):
         self.env = get_environment_variables()
         self.duplication = duplication

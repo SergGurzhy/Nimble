@@ -6,6 +6,8 @@ from db_factory import get_database
 from server_helpers.db_service import ServiceDB
 from server_helpers.helpers import update_db_daily
 
+TABLE_NAME = 'users'
+
 load_dotenv(sys.path[0] + '/.env')
 
 app = Flask(__name__)
@@ -44,20 +46,11 @@ def update_database():
         return jsonify({'error': f'An error occurred connecting to the server: {str(e)}'}), 500
 
 
-@app.route('/api/drop', methods=['POST'])
-def drop_table():
+@app.route('/api/reset', methods=['POST'])
+def reset():
     try:
-        db.drop_table()
-        return jsonify({'message': 'Drop database successfully'}), 200
-    except Exception as e:
-        return jsonify({'error': f'An error occurred connecting to the server: {str(e)}'}), 500
-
-
-@app.route('/api/initialization', methods=['POST'])
-def initialisation_db():
-    query = request.args.get('query').strip()
-    try:
-        db.initialisation_db(table_name=query)
+        db.drop_table(table_name=TABLE_NAME)
+        db.initialisation_db(table_name=TABLE_NAME)
         return jsonify({'message': 'DB initialisation successfully'}), 200
     except Exception as e:
         return jsonify({'error': f'An error occurred connecting to the DB: {str(e)}'}), 500

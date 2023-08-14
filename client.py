@@ -58,13 +58,13 @@ if __name__ == '__main__':
     client = NimbleDbClient(base_url)
 
     # Full text search example with GET request
-    # query = 'Ferrara'
-    # results_get = client.fulltext_search_get(query)
-    # pprint.pprint(results_get)
+    query = 'HR'
+    results_get = client.fulltext_search_get(query)
+    pprint.pprint(results_get)
 
     # client.update_info()
 
-    result_all = client.get_all()
-    pprint.pprint(result_all)
+    # result_all = client.get_all()
+    # pprint.pprint(result_all)
 
     # client.drop_db()

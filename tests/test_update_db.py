@@ -9,7 +9,7 @@ class TestUpdateDB(DatabaseTestCase):
     These test class should test the functionality of the database 'update_db' method.
 
        When each test is initialized, a mock database is created
-       and filled with data from the 'file test_contacts.csv'.
+       and filled with data from the file 'test_contacts.csv'.
     """
 
     def test_update_success_new_db(self):

@@ -6,7 +6,7 @@ from dataclasses import asdict
 from db_factory.nimble_db import NimbleDB
 from server_helpers.models.person import Person
 
-INITIALIZE_DATA = 'test_data/test_contacts_2.csv'
+INITIALIZE_DATA = 'test_data/test_contacts.csv'
 
 
 class MockDB(NimbleDB):
